@@ -1,2 +1,2 @@
 # 2019-kickstarters-success
-Analysis of kickstarter data using distributed system techniques.
+Analysis of kickstarter data using Apache Spark.
