@@ -1,0 +1,4 @@
+hdfs dfs -copyFromLocal ks-projects-201801.csv /uhadoop2019/DonBarredora/
+spark-submit --master spark://cluster-01:7077 2019-kickstarter-success.jar KickstarterTest hdfs://cm:9000/uhadoop2019/DonBarredora/ks-projects-201801.csv hdfs://cm:9000/uhadoop2019/DonBarredora/test/
+hdfs dfs -cat /uhadoop2019/DonBarredora/test/part-00000 | more
+hdfs dfs -rmr /uhadoop2019/DonBarredora/test
