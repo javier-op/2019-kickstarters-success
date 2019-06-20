@@ -57,6 +57,8 @@ public class KickstarterTest {
                 line -> line.split(",")[9].equals("successful")
         );
 
+
+        
         /*
          * Write the output to local FS or HDFS
          */
