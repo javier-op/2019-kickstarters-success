@@ -1,7 +1,7 @@
 package org.mdp.spark.cli;
 
+import java.text.ParseException;
 import java.util.Date;
-import java.util.ArrayList;
 import java.io.*;
 import java.util.Iterator;
 import java.text.SimpleDateFormat;
@@ -12,7 +12,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.functions;
 
 import scala.Tuple2;
-import scala.Tuple3;
 
 /**
  * Get the average ratings of TV series from IMDb.
@@ -23,11 +22,17 @@ public class MostSuccessfulCategory {
 
     public static int toMonths(String end, String start){
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-        Date endDate = format.parse(end);
-        Date startDate = format.parse(start);
-        int endInt = (endDate.getTime()/1000);
-        int startInt = (startDate.getTime()/1000);
-        return (endInt - startInt)/2592000;
+        int endInt = 0;
+        int startInt = 0;
+        try {
+            Date endDate = format.parse(end);
+            Date startDate = format.parse(start);
+            endInt = (int) (endDate.getTime() / 1000);
+            startInt = (int) (startDate.getTime() / 1000);
+        }catch (ParseException p){
+            System.out.println(p);
+        }
+        return (endInt - startInt) / 2592000;
     }
 
     /**
@@ -79,7 +84,7 @@ public class MostSuccessfulCategory {
         );
         JavaPairRDD<String,Integer> successfulCatCount =
                 successfulCatOne.reduceByKey((a, b) -> a + b);
-        Iterator<String,Integer> top3successfullCatCount =
+        Iterator<Tuple2<String,Integer>> top3successfullCatCount =
                 successfulCatCount.sortByKey().take(3).iterator();
 
         try{
@@ -87,7 +92,7 @@ public class MostSuccessfulCategory {
             BufferedWriter br = new BufferedWriter(fr);
             PrintWriter out = new PrintWriter(br);
             while (top3successfullCatCount.hasNext()) {
-                out.write(top3successfullCatCount.next());
+                out.write(top3successfullCatCount.next().toString());
                 out.write("\n");
             }
             out.close();
@@ -105,14 +110,15 @@ public class MostSuccessfulCategory {
         );
         JavaPairRDD<String,Integer> successMainCatCount =
                 successfulMainCatOne.reduceByKey((a, b) -> a + b);
-        ArrayList<String,Integer> mainCatSuccess =
-                successMainCatCount.sortByKey().take(1);
+
+        Iterator<Tuple2<String,Integer>> mainCatSuccess =
+                successMainCatCount.sortByKey().take(1).iterator();
         try{
             FileWriter fr = new FileWriter("top1SuccMainCat");
             BufferedWriter br = new BufferedWriter(fr);
             PrintWriter out = new PrintWriter(br);
             while (mainCatSuccess.hasNext()) {
-                out.write(mainCatSuccess.next());
+                out.write(mainCatSuccess.next().toString());
                 out.write("\n");
             }
             out.close();
@@ -127,14 +133,14 @@ public class MostSuccessfulCategory {
         JavaPairRDD<String, Integer> proyectsUSDGR = successful.mapToPair(
                 line -> new Tuple2<String, Integer>(line.split(",")[1], Integer.parseInt(line.split(",")[14]))
         );
-        Iterator<String,Integer> top10proyectsUSDGR =
+        Iterator<Tuple2<String,Integer>> top10proyectsUSDGR =
                 proyectsUSDGR.sortByKey().take(10).iterator();
         try{
             FileWriter fr = new FileWriter("top10proyectsUSDGR");
             BufferedWriter br = new BufferedWriter(fr);
             PrintWriter out = new PrintWriter(br);
             while (top10proyectsUSDGR.hasNext()) {
-                out.write(top10proyectsUSDGR.next());
+                out.write(top10proyectsUSDGR.next().toString());
                 out.write("\n");
             }
             out.close();
