@@ -1,7 +1,9 @@
 package org.mdp.spark.cli;
 
 import java.util.Date;
-import java.util.List;
+import java.util.ArrayList;
+import java.io.*;
+import java.util.Iterator;
 import java.text.SimpleDateFormat;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -103,8 +105,8 @@ public class MostSuccessfulCategory {
         );
         JavaPairRDD<String,Integer> successMainCatCount =
                 successfulMainCatOne.reduceByKey((a, b) -> a + b);
-        Iterator<String,Integer> mainCatSuccess =
-                successMainCatCount.sortByKey().take(1).iterator();
+        ArrayList<String,Integer> mainCatSuccess =
+                successMainCatCount.sortByKey().take(1);
         try{
             FileWriter fr = new FileWriter("top1SuccMainCat");
             BufferedWriter br = new BufferedWriter(fr);
@@ -150,7 +152,7 @@ public class MostSuccessfulCategory {
         JavaPairRDD<String,Integer> categoriesUSDGRCount =
                 categoriesUSDGR.reduceByKey((a, b) -> a + b);
         JavaPairRDD<String,Integer> categoriesUSDGRPercent = categoriesUSDGRCount.mapToPair(
-                line -> new Tuple2<String, Integer>(line._1,line._2/sum(line._2))
+                line -> new Tuple2<String, Integer>(line._1,line._2/functions.sum(line._2))
         );
         JavaPairRDD<String,Integer> categoriesUSDGRCountSorted =
                 categoriesUSDGRPercent.sortByKey();
