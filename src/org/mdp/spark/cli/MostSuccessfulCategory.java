@@ -1,6 +1,7 @@
 package org.mdp.spark.cli;
 
 import java.util.Date;
+import java.util.List;
 import java.text.SimpleDateFormat;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -22,9 +23,9 @@ public class MostSuccessfulCategory {
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date endDate = format.parse(end);
         Date startDate = format.parse(start);
-        int end = (end.getTime()/1000);
-        int start = (start.getTime()/1000);
-        return (end - start)/2592000;
+        int endInt = (endDate.getTime()/1000);
+        int startInt = (startDate.getTime()/1000);
+        return (endInt - startInt)/2592000;
     }
 
     /**
@@ -98,16 +99,17 @@ public class MostSuccessfulCategory {
 
         /// TOP 10 USD REAL GOAL SUCCESSFUL PROYECTS  /////////////////
         JavaPairRDD<String, Integer> proyectsUSDGR = successful.mapToPair(
-                line -> new Tuple2<String, Integer>(line.split(",")[1], line.split(",")[14])
+                line -> new Tuple2<String, Integer>(line.split(",")[1], Integer.parseInt(line.split(",")[14]))
         );
         List<String,Integer> top10proyectsUSDGR =
                 proyectsUSDGR.sortByKey().take(10);
         top10proyectsUSDGR.saveAsTextFile("top10proyectsUSDGR");
+
         ///////////////////////////////////////////////////////////////////
 
         /// USDGR PERCENT OF EACH CAT  ////////////////////////////
         JavaPairRDD<String, Integer> categoriesUSDGR = inputRDD.mapToPair(
-                line -> new Tuple2<String, Integer>(line.split(",")[2], Integer.parseInteger(line.split(",")[14]))
+                line -> new Tuple2<String, Integer>(line.split(",")[2], Integer.parseInt(line.split(",")[14]))
         );
         JavaPairRDD<String,Integer> categoriesUSDGRCount =
                 categoriesUSDGR.reduceByKey((a, b) -> a + b);
@@ -122,7 +124,7 @@ public class MostSuccessfulCategory {
 
         /// COUNT BACKERS FOR EVERY CAT  ///////////////////////////////////
         JavaPairRDD<String, Integer> backersCat = inputRDD.mapToPair(
-                line -> new Tuple2<String, Integer>(line.split(",")[2], Integer.parseInteger(line.split(",")[10]))
+                line -> new Tuple2<String, Integer>(line.split(",")[2], Integer.parseInt(line.split(",")[10]))
         );
         JavaPairRDD<String,Integer> backersCatCount =
                 backersCat.reduceByKey((a, b) -> a + b);
@@ -134,10 +136,10 @@ public class MostSuccessfulCategory {
 
 
         /// PROYECT'S DATE-USDGR RELATION  /////////////////////////////////
-        JavaPairRDD<Integer, Integer> monthsUSDGR = inputRDD.map(
+        JavaPairRDD<Integer, Integer> monthsUSDGR = inputRDD.mapToPair(
                 line -> new Tuple2<Integer,Integer> (
                         toMonths(line.split(",")[5], line.split(",")[7]),
-                        Integer.parseInteger(line.split(",")[14])
+                        Integer.parseInt(line.split(",")[14])
                 )
         );
         JavaPairRDD<Integer,Integer> reducedMonthsUSDGR =
