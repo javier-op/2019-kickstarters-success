@@ -22,7 +22,9 @@ public class MostSuccessfulCategory {
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date endDate = format.parse(end);
         Date startDate = format.parse(start);
-        return (end.getTime() - start.getTime())/2592000000;
+        int end = (int) (end.getTime()/1000);
+        int start = (int) (start.getTime()/1000);
+        return (end - start)/2592000;
     }
 
     /**
