@@ -22,8 +22,8 @@ public class MostSuccessfulCategory {
         SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
         Date endDate = format.parse(end);
         Date startDate = format.parse(start);
-        int end = (int) (end.getTime()/1000);
-        int start = (int) (start.getTime()/1000);
+        int end = (end.getTime()/1000);
+        int start = (start.getTime()/1000);
         return (end - start)/2592000;
     }
 
@@ -76,7 +76,7 @@ public class MostSuccessfulCategory {
         );
         JavaPairRDD<String,Integer> successfulCatCount =
                 successfulCatOne.reduceByKey((a, b) -> a + b);
-        JavaPairRDD<String,Integer> top3successfullCatCount =
+        List<String,Integer> top3successfullCatCount =
                 successfulCatCount.sortByKey().take(3);
         /*
          * Write the output to local FS or HDFS
@@ -91,7 +91,7 @@ public class MostSuccessfulCategory {
         );
         JavaPairRDD<String,Integer> successMainCatCount =
                 successfulMainCatOne.reduceByKey((a, b) -> a + b);
-        JavaPairRDD<String,Integer> mainCatSuccess =
+        List<String,Integer> mainCatSuccess =
                 successMainCatCount.sortByKey().take(1);
         mainCatSuccess.saveAsTextFile("top1SuccMainCat");
         ///////////////////////////////////////////////////////////
@@ -100,7 +100,7 @@ public class MostSuccessfulCategory {
         JavaPairRDD<String, Integer> proyectsUSDGR = successful.mapToPair(
                 line -> new Tuple2<String, Integer>(line.split(",")[1], line.split(",")[14])
         );
-        JavaPairRDD<String,Integer> top10proyectsUSDGR =
+        List<String,Integer> top10proyectsUSDGR =
                 proyectsUSDGR.sortByKey().take(10);
         top10proyectsUSDGR.saveAsTextFile("top10proyectsUSDGR");
         ///////////////////////////////////////////////////////////////////
