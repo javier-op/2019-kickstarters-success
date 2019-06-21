@@ -107,7 +107,7 @@ public class MostSuccessfulCategory {
 
         /// USDGR PERCENT OF EACH CAT  ////////////////////////////
         JavaPairRDD<String, Integer> categoriesUSDGR = inputRDD.mapToPair(
-                line -> new Tuple2<String, Integer>(line.split(",")[2], line.split(",")[14])
+                line -> new Tuple2<String, Integer>(line.split(",")[2], Integer.parseInteger(line.split(",")[14]))
         );
         JavaPairRDD<String,Integer> categoriesUSDGRCount =
                 categoriesUSDGR.reduceByKey((a, b) -> a + b);
@@ -122,27 +122,27 @@ public class MostSuccessfulCategory {
 
         /// COUNT BACKERS FOR EVERY CAT  ///////////////////////////////////
         JavaPairRDD<String, Integer> backersCat = inputRDD.mapToPair(
-                line -> new Tuple2<String, Integer>(line.split(",")[2], line.split(",")[10])
+                line -> new Tuple2<String, Integer>(line.split(",")[2], Integer.parseInteger(line.split(",")[10]))
         );
-        JavaPairRDD<String,Float> backersCatCount =
+        JavaPairRDD<String,Integer> backersCatCount =
                 backersCat.reduceByKey((a, b) -> a + b);
-        JavaPairRDD<String,Float> top3successfulCatCount =
+        JavaPairRDD<String,Integer> backersCatCountSorted =
                 backersCatCount.sortByKey();
 
-        top3successfulCatCount.saveAsTextFile("top3successfulCatCount");
+        backersCatCountSorted.saveAsTextFile("backersCatCountSorted");
         ////////////////////////////////////////////////////////////////////
 
 
         /// PROYECT'S DATE-USDGR RELATION  /////////////////////////////////
         JavaPairRDD<Integer, Integer> monthsUSDGR = inputRDD.map(
-                line -> new Tuple2<Date,Integer> (
+                line -> new Tuple2<Integer,Integer> (
                         toMonths(line.split(",")[5], line.split(",")[7]),
-                        line.split(",")[14]
+                        Integer.parseInteger(line.split(",")[14])
                 )
         );
-        JavaPairRDD<String,Integer> reducedMonthsUSDGR =
+        JavaPairRDD<Integer,Integer> reducedMonthsUSDGR =
                 monthsUSDGR.reduceByKey((a, b) -> a + b);
-        JavaPairRDD<String,Integer> reducedMonthsUSDGRsorted =
+        JavaPairRDD<Integer,Integer> reducedMonthsUSDGRsorted =
                 reducedMonthsUSDGR.sortByKey();
 
         reducedMonthsUSDGRsorted.saveAsTextFile("reducedMonthsUSDGRsorted");
