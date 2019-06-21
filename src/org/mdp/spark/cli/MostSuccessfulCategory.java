@@ -1,6 +1,7 @@
 package org.mdp.spark.cli;
 
 import java.text.ParseException;
+import java.lang.ArrayIndexOutOfBoundsException;
 import java.util.Date;
 import java.io.*;
 import java.util.Iterator;
@@ -34,6 +35,17 @@ public class MostSuccessfulCategory {
         }
         return (endInt - startInt) / 2592000;
     }
+
+    public static int parsealo(String s){
+        int a=0;
+        try {
+            a = Math.round(Float.parseFloat(s));
+        }catch (NumberFormatException | ArrayIndexOutOfBoundsException p){
+            System.out.println(p);
+        }
+        return a;
+    }
+
 
     /**
      * This will be called by spark
@@ -84,8 +96,13 @@ public class MostSuccessfulCategory {
         );
         JavaPairRDD<String,Integer> successfulCatCount =
                 successfulCatOne.reduceByKey((a, b) -> a + b);
-        Iterator<Tuple2<String,Integer>> top3successfullCatCount =
-                successfulCatCount.sortByKey().take(3).iterator();
+
+        JavaPairRDD<Integer,String> succCountCat = successfulCatCount.mapToPair(
+                line -> new Tuple2<Integer,String>(line._2, line._1)
+        );
+
+        Iterator<Tuple2<Integer,String>> top3successfullCatCount =
+                succCountCat.sortByKey(false).take(3).iterator();
 
         try{
             FileWriter fr = new FileWriter("top3SuccCat");
@@ -111,8 +128,12 @@ public class MostSuccessfulCategory {
         JavaPairRDD<String,Integer> successMainCatCount =
                 successfulMainCatOne.reduceByKey((a, b) -> a + b);
 
-        Iterator<Tuple2<String,Integer>> mainCatSuccess =
-                successMainCatCount.sortByKey().take(1).iterator();
+        JavaPairRDD<Integer,String> successCountMainCat = successMainCatCount.mapToPair(
+                line -> new Tuple2<Integer,String>(line._2, line._1)
+        );
+
+        Iterator<Tuple2<Integer,String>> mainCatSuccess =
+                successCountMainCat.sortByKey(false).take(1).iterator();
         try{
             FileWriter fr = new FileWriter("top1SuccMainCat");
             BufferedWriter br = new BufferedWriter(fr);
@@ -130,11 +151,13 @@ public class MostSuccessfulCategory {
         ///////////////////////////////////////////////////////////
 
         /// TOP 10 USD REAL GOAL SUCCESSFUL PROYECTS  /////////////////
-        JavaPairRDD<String, Integer> proyectsUSDGR = successful.mapToPair(
-                line -> new Tuple2<String, Integer>(line.split(",")[1], Integer.parseInt(line.split(",")[14]))
+        JavaPairRDD<Integer, String> proyectsUSDGR = successful.mapToPair(
+                line -> new Tuple2<Integer, String>((Math.round(Float.parseFloat(line.split(",")[14]))) , line.split(",")[1])
         );
-        Iterator<Tuple2<String,Integer>> top10proyectsUSDGR =
-                proyectsUSDGR.sortByKey().take(10).iterator();
+        JavaPairRDD<Integer,String> sortedProyectsUSDGR =
+                proyectsUSDGR.sortByKey();
+        Iterator<Tuple2<Integer,String>> top10proyectsUSDGR =
+                sortedProyectsUSDGR.sortByKey(false).take(10).iterator();
         try{
             FileWriter fr = new FileWriter("top10proyectsUSDGR");
             BufferedWriter br = new BufferedWriter(fr);
@@ -152,13 +175,14 @@ public class MostSuccessfulCategory {
         ///////////////////////////////////////////////////////////////////
 
         /// USDGR PERCENT OF EACH CAT  ////////////////////////////
+        /*
         JavaPairRDD<String, Integer> categoriesUSDGR = inputRDD.mapToPair(
                 line -> new Tuple2<String, Integer>(line.split(",")[2], Integer.parseInt(line.split(",")[14]))
         );
         JavaPairRDD<String,Integer> categoriesUSDGRCount =
                 categoriesUSDGR.reduceByKey((a, b) -> a + b);
         JavaPairRDD<String,Integer> categoriesUSDGRPercent = categoriesUSDGRCount.mapToPair(
-                line -> new Tuple2<String, Integer>(line._1,line._2/functions.sum(line._2))
+                line -> new Tuple2<String, Integer>(line._1,line._2/ functions.sum())
         );
         JavaPairRDD<String,Integer> categoriesUSDGRCountSorted =
                 categoriesUSDGRPercent.sortByKey();
@@ -166,33 +190,48 @@ public class MostSuccessfulCategory {
         categoriesUSDGRCountSorted.saveAsTextFile("categoriesUSDGRCountSorted");
         ///////////////////////////////////////////////////////////////////
 
-        /// COUNT BACKERS FOR EVERY CAT  ///////////////////////////////////
+         */
+
+        /// COUNT BACKERS FOR EVERY MAIN CAT  ///////////////////////////////////
         JavaPairRDD<String, Integer> backersCat = inputRDD.mapToPair(
-                line -> new Tuple2<String, Integer>(line.split(",")[2], Integer.parseInt(line.split(",")[10]))
+                line -> new Tuple2<String, Integer>(line.split(",")[3], parsealo(line.split(",")[10]))
         );
         JavaPairRDD<String,Integer> backersCatCount =
                 backersCat.reduceByKey((a, b) -> a + b);
-        JavaPairRDD<String,Integer> backersCatCountSorted =
-                backersCatCount.sortByKey();
+
+        JavaPairRDD<Integer,String> CatCountBackers = backersCatCount.mapToPair(
+                line -> new Tuple2<Integer, String>(line._2, line._1)
+        );
+
+        JavaPairRDD<Integer,String> backersCatCountSorted =
+                CatCountBackers.sortByKey(false);
 
         backersCatCountSorted.saveAsTextFile("backersCatCountSorted");
         ////////////////////////////////////////////////////////////////////
-
 
         /// PROYECT'S DATE-USDGR RELATION  /////////////////////////////////
         JavaPairRDD<Integer, Integer> monthsUSDGR = inputRDD.mapToPair(
                 line -> new Tuple2<Integer,Integer> (
                         toMonths(line.split(",")[5], line.split(",")[7]),
-                        Integer.parseInt(line.split(",")[14])
+                        parsealo(line.split(",")[14])
                 )
         );
         JavaPairRDD<Integer,Integer> reducedMonthsUSDGR =
                 monthsUSDGR.reduceByKey((a, b) -> a + b);
+
+        JavaPairRDD<Integer,Integer> reducedMonthsUSDGRinv = reducedMonthsUSDGR.mapToPair(
+                line -> new Tuple2<Integer,Integer>(line._2,line._1)
+        );
+
         JavaPairRDD<Integer,Integer> reducedMonthsUSDGRsorted =
-                reducedMonthsUSDGR.sortByKey();
+                reducedMonthsUSDGRinv.sortByKey(false);
 
         reducedMonthsUSDGRsorted.saveAsTextFile("reducedMonthsUSDGRsorted");
         ////////////////////////////////////////////////////////////////////
+
+
+
+
 
         context.close();
     }
