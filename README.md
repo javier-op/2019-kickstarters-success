@@ -31,6 +31,7 @@ Los resultados obtenidos fueron los siguientes:
 * La categoría principal más "exitosa" (la que incluye más proyectos exitosos) es la categoría de **música**, que tiene 24020 proyectos exitosos.
 
 * Las 3 categorías específicas con más proyectos exitosos son:
+
 | Categoría      	| N° de proyectos exitosos 	|
 |----------------	|--------------------------	|
 | Product Design 	|                     7942 	|
@@ -38,6 +39,7 @@ Los resultados obtenidos fueron los siguientes:
 | Shorts (film)  	|                     6625 	|
 
 * Los 10 proyectos exitosos que recaudaron más dinero fueron:
+
 | Proyecto                                                       	| Categoría                     	| Cantidad de dinero (USD) 	|
 |----------------------------------------------------------------	|-------------------------------	|--------------------------	|
 |  SCiO: Your Sixth Sense. A Pocket   Molecular Sensor For All ! 	| Technology (Hardware)         	| 27.625.572               	|
@@ -52,6 +54,7 @@ Los resultados obtenidos fueron los siguientes:
 | The Bards Tale IV                                              	| Games (Video Games)           	| 1.250.000                	|
 
 * Las categorías principales que cuentan con mayor número de patrocinadores:
+
 | Categoría    	| N° de colaboradores 	|
 |--------------	|---------------------	|
 | Games        	| 11.331.317          	|
