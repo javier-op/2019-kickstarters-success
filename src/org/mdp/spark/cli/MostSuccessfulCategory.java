@@ -77,12 +77,23 @@ public class MostSuccessfulCategory {
         );
         JavaPairRDD<String,Integer> successfulCatCount =
                 successfulCatOne.reduceByKey((a, b) -> a + b);
-        List<String,Integer> top3successfullCatCount =
-                successfulCatCount.sortByKey().take(3);
-        /*
-         * Write the output to local FS or HDFS
-         */
-        top3successfullCatCount.saveAsTextFile("top3SuccCat");
+        Iterator<String,Integer> top3successfullCatCount =
+                successfulCatCount.sortByKey().take(3).iterator();
+
+        try{
+            FileWriter fr = new FileWriter("top3SuccCat");
+            BufferedWriter br = new BufferedWriter(fr);
+            PrintWriter out = new PrintWriter(br);
+            while (top3successfullCatCount.hasNext()) {
+                out.write(top3successfullCatCount.next());
+                out.write("\n");
+            }
+            out.close();
+        }
+        catch(IOException e){
+            System.out.println(e);
+        }
+        //top3successfullCatCount.saveAsTextFile("top3SuccCat");
         ////////////////////////////////////////////////////////////
 
 
@@ -92,19 +103,44 @@ public class MostSuccessfulCategory {
         );
         JavaPairRDD<String,Integer> successMainCatCount =
                 successfulMainCatOne.reduceByKey((a, b) -> a + b);
-        List<String,Integer> mainCatSuccess =
-                successMainCatCount.sortByKey().take(1);
-        mainCatSuccess.saveAsTextFile("top1SuccMainCat");
+        Iterator<String,Integer> mainCatSuccess =
+                successMainCatCount.sortByKey().take(1).iterator();
+        try{
+            FileWriter fr = new FileWriter("top1SuccMainCat");
+            BufferedWriter br = new BufferedWriter(fr);
+            PrintWriter out = new PrintWriter(br);
+            while (mainCatSuccess.hasNext()) {
+                out.write(mainCatSuccess.next());
+                out.write("\n");
+            }
+            out.close();
+        }
+        catch(IOException e){
+            System.out.println(e);
+        }
+        //mainCatSuccess.saveAsTextFile("top1SuccMainCat");
         ///////////////////////////////////////////////////////////
 
         /// TOP 10 USD REAL GOAL SUCCESSFUL PROYECTS  /////////////////
         JavaPairRDD<String, Integer> proyectsUSDGR = successful.mapToPair(
                 line -> new Tuple2<String, Integer>(line.split(",")[1], Integer.parseInt(line.split(",")[14]))
         );
-        List<String,Integer> top10proyectsUSDGR =
-                proyectsUSDGR.sortByKey().take(10);
-        top10proyectsUSDGR.saveAsTextFile("top10proyectsUSDGR");
-
+        Iterator<String,Integer> top10proyectsUSDGR =
+                proyectsUSDGR.sortByKey().take(10).iterator();
+        try{
+            FileWriter fr = new FileWriter("top10proyectsUSDGR");
+            BufferedWriter br = new BufferedWriter(fr);
+            PrintWriter out = new PrintWriter(br);
+            while (top10proyectsUSDGR.hasNext()) {
+                out.write(top10proyectsUSDGR.next());
+                out.write("\n");
+            }
+            out.close();
+        }
+        catch(IOException e){
+            System.out.println(e);
+        }
+        //top10proyectsUSDGR.saveAsTextFile("top10proyectsUSDGR");
         ///////////////////////////////////////////////////////////////////
 
         /// USDGR PERCENT OF EACH CAT  ////////////////////////////
